@@ -39,62 +39,39 @@ func main() {
 	// but you also need to remove the right value not just the first value that has an issue
 	// so if you have an issue then you need to create the list with
 	for _, line := range lists {
-		if line[0] > line[1] {
-			sum += decrease(line, 0, 0)
-		} else if line[0] < line[1] {
-			sum += increase(line, 0, 0)
-		} else {
-			sum += 0
-		}
+		sum += isLineSafe(line)
 	}
 	fmt.Println("Part 1:", sum)
 }
 
-func decrease(arr []int, prob int, loc int) int {
-	if len(arr) == loc+1 {
+func isLineSafe(line []int) int {
+	if checkOrder(line, true) || checkOrder(line, false) {
 		return 1
-	} else if arr[loc] > arr[loc+1] && (abs(arr[loc]-arr[loc+1]) <= 3) {
-		loc += 1
-		return decrease(arr, prob, loc)
 	} else {
-		prob += 1
-		if prob > 1 {
-			return 0
-		}
-		// TODO - remove the value at the loc and see if you get a good response then if not remove the loc +1 value
-		arrAtLoc := removeAtIndex(arr, loc)
-		if decrease(arrAtLoc, prob, loc) == 1 {
-			return 1
-		}
-		arrAtLocLessOne := removeAtIndex(arr, loc-1)
-		if decrease(arrAtLocLessOne, prob, loc) == 1 {
-			return 1
+		for indx := range line {
+			newLine := make([]int, len(line))
+			copy(newLine, line)
+			newLine = removeAtIndex(newLine, indx)
+			if checkOrder(newLine, true) || checkOrder(newLine, false) {
+				return 1
+			}
 		}
 		return 0
 	}
 }
 
-func increase(arr []int, prob int, loc int) int {
-	if len(arr) == loc+1 {
-		return 1
-	} else if arr[loc] < arr[loc+1] && (abs(arr[loc]-arr[loc+1]) <= 3) {
-		loc += 1
-		return increase(arr, prob, loc)
+// checkOrder checks if the array is in the specified order (increasing or decreasing)
+// and returns a boolean indicating if the order is correct
+func checkOrder(arr []int, increasing bool) bool {
+	if len(arr) <= 1 {
+		return true
+	}
+
+	if (increasing && arr[0] < arr[1] && abs(arr[0]-arr[1]) <= 3) ||
+		(!increasing && arr[0] > arr[1] && abs(arr[0]-arr[1]) <= 3) {
+		return checkOrder(arr[1:], increasing)
 	} else {
-		prob += 1
-		if prob > 1 {
-			return 0
-		}
-		// TODO - remove the value at the loc and see if you get a good response then if not remove the loc +1 value
-		arrAtLoc := removeAtIndex(arr, loc)
-		if increase(arrAtLoc, prob, loc) == 1 {
-			return 1
-		}
-		arrAtLocLessOne := removeAtIndex(arr, loc-1)
-		if increase(arrAtLocLessOne, prob, loc) == 1 {
-			return 1
-		}
-		return 0
+		return false
 	}
 }
 
@@ -105,9 +82,9 @@ func abs(a int) int {
 	return -a
 }
 
-func removeAtIndex(slice []int, index int) []int {
-	if index < 0 || index >= len(slice) {
-		return slice // Return the original slice if the index is out of range
+func removeAtIndex(arr []int, index int) []int {
+	if index < 0 || index >= len(arr) {
+		return arr // Invalid index, return the original array
 	}
-	return append(slice[:index], slice[index+1:]...)
+	return append(arr[:index], arr[index+1:]...)
 }
