@@ -23,6 +23,14 @@ all regex and the regex package in golang was solid. "FindAll" then add do's don
 Difficulty 1/10 - because regex and golang <br />
 
 Coffee: Ethiopia Habtamu Fekadu Aga <br />
-Region: Ethiopia - pretty good cup, I ground it much more coarse then it said. tea-like was a good description
+Region: Ethiopia - pretty good cup, I ground it much more coarse then it said. tea-like was a good description <br />
 6/10
+
+## Day 4
+else if hell - although with the X-Mas part 2 I found an easier way to do it. I will not lie - copilot picked up what I was doing with part one and I might have hit tab on most of the else if checks for the i's and j's<br />
+Difficulty 4/10<br />
+
+Coffee: Kenya Gichathaini AA <br />
+Region Kenya - really clean cup of cofee, mild with the grapefruit bite, I like when they use the descriptor `juicy` haha not a bad description <br />
+7/10
 

@@ -29,6 +29,7 @@ func main() {
 		return
 	}
 	count := 0
+	countMas := 0
 	for i, row := range data {
 		for j := 0; j < len(row); j++ {
 			if data[i][j] == 'X' {
@@ -57,9 +58,15 @@ func main() {
 					count += 1
 				}
 			}
+			if data[i][j] == 'A' && i >= 1 && j >= 1 && i+1 <= len(row)-1 && j+1 <= len(data)-1 {
+				if checkIfX(i, j, data) {
+					countMas += 1
+				}
+			}
 		}
 	}
 	fmt.Println("Number of XMAS found:", count)
+	fmt.Println("Number of X-MAS found:", countMas)
 }
 
 // the value at x,y should always be the X in XMAS
@@ -96,6 +103,28 @@ func checkDirection(x int, y int, direction string, arr []string) bool {
 		if arr[x+1][y+1] == 'M' && arr[x+2][y+2] == 'A' && arr[x+3][y+3] == 'S' {
 			return true
 		}
+	}
+	return false
+}
+
+// the value at x,y should always be the X in XMAS
+func checkIfX(x int, y int, arr []string) bool {
+	var masList []string
+	// upleft to downright and vice versa
+	masList = append(masList, string(arr[x-1][y-1])+"A"+string(arr[x+1][y+1]))
+	masList = append(masList, string(arr[x+1][y+1])+"A"+string(arr[x-1][y-1]))
+	// upright to downleft and vice versa
+	masList = append(masList, string(arr[x-1][y+1])+"A"+string(arr[x+1][y-1]))
+	masList = append(masList, string(arr[x+1][y-1])+"A"+string(arr[x-1][y+1]))
+	countMas := 0
+	for _, mas := range masList {
+		if mas == "MAS" {
+			countMas += 1
+		}
+	}
+	if countMas == 2 {
+		return true
+
 	}
 	return false
 }
