@@ -34,3 +34,11 @@ Coffee: Kenya Gichathaini AA <br />
 Region Kenya - really clean cup of cofee, mild with the grapefruit bite, I like when they use the descriptor `juicy` haha not a bad description <br />
 7/10
 
+## Day 5
+another puzzle where you don't check what is asked for you check the opposite and fail fast - part2 was kind of fun. could have made it cleaner but happy with the out come <br />
+Difficulty 3/10<br />
+
+Coffee: Guatemala El Socorro Maracaturra <br />
+Region Guatemala - need to rebrew this one too, I really struggle brewing the ones that require a fine grind - the is just merky <br />
+?/10
+
