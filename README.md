@@ -42,3 +42,9 @@ Coffee: Guatemala El Socorro Maracaturra <br />
 Region Guatemala - need to rebrew this one too, I really struggle brewing the ones that require a fine grind - the is just merky <br />
 ?/10
 
+## Day 6
+got stuck! in a loop. This one was challenging. It ended up being part 2 and me not documenting enough to catch if it was <br /> in a loop or not. Directions can change but it still in a loop! But also I was logging it at the wrong time. Enjoyed debugging it though - had to take a couple breaks. <br />
+5/10 <br />
+
+Coffee -- I'll have a cup after dinner - forgot how it tastes. <br />
+
