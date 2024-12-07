@@ -48,3 +48,9 @@ got stuck! in a loop. This one was challenging. It ended up being part 2 and me 
 
 Coffee -- I'll have a cup after dinner - forgot how it tastes. <br />
 
+## Day 7
+.... wtf - I thought I had something wrong but I was only inputing 849 <br />out of the 850 lines. It took me almost 4 hours of straching my head to say let me start over and then saw my input was only doing 849 lines. Otherwise would have been 30min max... <br />
+Difficulty 2/10 <br />
+
+Coffee -- was good.
+
