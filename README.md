@@ -54,3 +54,13 @@ Difficulty 2/10 <br />
 
 Coffee -- was good.
 
+## Day 8
+Fun one! had to look up a the colinear algorithm but pretty cool solution just to do the area calculation. <br /> And my part 1 solution lead to an easy part 2 solution. <br />
+Diffuculty 4/10 <br />
+
+Coffee: Costa Rica Las Lajas Natural <br />
+Region: Costa Rica - still struggling to correctly extract these really fine filter coffee grinds - smells great but the taste is not what I would expext from a natural coffee <br />
+5/10
+
+
+
