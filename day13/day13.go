@@ -4,11 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
-
-type complexNumber complex128
-
-type Grid map[complexNumber]rune
 
 func readInput(filePath string) []string {
 	file, err := os.Open(filePath)
@@ -30,145 +28,175 @@ func readInput(filePath string) []string {
 	return lines
 }
 
-func createGrid(lines []string) Grid {
-	grid := make(Grid)
-	for y, line := range lines {
-		for x, c := range line {
-			grid[complexNumber(complex(float64(x), float64(y)))] = c
-		}
-	}
-	return grid
-}
-
-func floodFill(grid Grid, start complexNumber) (set map[complexNumber]struct{}) {
-	set = make(map[complexNumber]struct{})
-	queue := []complexNumber{start}
-	symbol := grid[start]
-	set[start] = struct{}{}
-
-	directions := []complexNumber{1, -1, 1i, -1i}
-	for len(queue) > 0 {
-		pos := queue[0]
-		queue = queue[1:]
-		for _, d := range directions {
-			newPos := pos + d
-			if _, exists := grid[newPos]; exists {
-				if _, covered := set[newPos]; !covered && grid[newPos] == symbol {
-					set[newPos] = struct{}{}
-					queue = append(queue, newPos)
-				}
-			}
-		}
-	}
-	return
-}
-
-func getArea(region map[complexNumber]struct{}) int {
-	return len(region)
-}
-
-func getPerimeter(region map[complexNumber]struct{}) int {
-	directions := []complexNumber{1, -1, 1i, -1i}
-	perimeter := 0
-
-	for pos := range region {
-		for _, d := range directions {
-			newPos := pos + d
-			if _, exists := region[newPos]; !exists {
-				perimeter++
-			}
-		}
-	}
-	return perimeter
-}
-
-func getSidesCount(region map[complexNumber]struct{}) int {
-	perimeterObjects := make(map[complexNumber]complexNumber)
-	directions := []complexNumber{1, -1, 1i, -1i}
-	for pos := range region {
-		for _, d := range directions {
-			newPos := pos + d
-			if _, exists := region[newPos]; !exists {
-				perimeterObjects[newPos] = d
-			}
-		}
-	}
-
-	distinctSides := 0
-	visited := make(map[complexNumber]struct{})
-	for pos, d := range perimeterObjects {
-		if _, alreadyVisited := visited[pos]; alreadyVisited {
-			continue
-		}
-		distinctSides++
-		current := pos
-		for {
-			visited[current] = struct{}{}
-			next := current + d*1i
-			if nextDir, ok := perimeterObjects[next]; ok && nextDir == d {
-				current = next
-			} else {
-				break
-			}
-		}
-		current = pos
-		for {
-			visited[current] = struct{}{}
-			next := current + d*-1i
-			if nextDir, ok := perimeterObjects[next]; ok && nextDir == d {
-				current = next
-			} else {
-				break
-			}
-		}
-	}
-	return distinctSides
+type Game struct {
+	xA     int
+	yA     int
+	xB     int
+	yB     int
+	prizeX int
+	prizeY int
 }
 
 func main() {
-	// lines := readInput("day12input.txt")
-	lines := readInput("day12ex.txt")
-	grid := createGrid(lines)
-
-	regions := []struct {
-		symbol rune
-		region map[complexNumber]struct{}
-	}{}
-
-	uncovered := make(map[complexNumber]struct{})
-	for pos := range grid {
-		uncovered[pos] = struct{}{}
+	lines := readInput("day13input.txt")
+	// lines := readInput("day13ex.txt")
+	games1 := make([]Game, 0)
+	games2 := make([]Game, 0)
+	for i := 0; i < len(lines); i += 4 {
+		splitLineA := strings.Split(lines[i], " ")
+		xA, _ := strconv.Atoi(splitLineA[2][2:4])
+		yA, _ := strconv.Atoi(splitLineA[3][2:])
+		splitLineB := strings.Split(lines[i+1], " ")
+		xB, _ := strconv.Atoi(splitLineB[2][2:4])
+		yB, _ := strconv.Atoi(splitLineB[3][2:])
+		splitLineP := strings.Split(lines[i+2], " ")
+		p := strings.Split(splitLineP[1], "=")[1]
+		prizeX, _ := strconv.Atoi(p[:len(p)-1])
+		prizeY, _ := strconv.Atoi(strings.Split(splitLineP[2], "=")[1])
+		part2Add := 10000000000000
+		games1 = append(games1, Game{xA, yA, xB, yB, prizeX, prizeY})
+		games2 = append(games2, Game{xA, yA, xB, yB, prizeX + part2Add, prizeY + part2Add})
 	}
 
-	for len(uncovered) > 0 {
-		for start := range uncovered {
-			region := floodFill(grid, start)
-			for pos := range region {
-				delete(uncovered, pos)
-			}
-			regions = append(regions, struct {
-				symbol rune
-				region map[complexNumber]struct{}
-			}{grid[start], region})
-			break
+	tokens := 0
+	for _, g := range games1 {
+		canWin, a, b := canGameBeWon(g)
+		fmt.Println(canWin, a, b)
+		if canWin {
+			tokens += a * 3
+			tokens += b
+		}
+	}
+	fmt.Println(tokens)
+	// 19908 too low
+	// 31714 too high
+	// 26810
+
+	//part2
+	tokens2 := 0
+	for _, g := range games2 {
+		tokens2 += calculateTokens(g)
+	}
+	fmt.Println(tokens2)
+}
+
+func canGameBeWon(g Game) (bool, int, int) {
+	xPossible := findAllSolutions(g.xA, g.xB, g.prizeX)
+	yPossible := findAllSolutions(g.yA, g.yB, g.prizeY)
+	union := intersectionPairs(xPossible, yPossible)
+	if len(union) > 0 {
+		a, b := findMinXPair(union)
+		return true, a, b
+	}
+	return false, 0, 0
+}
+
+// findAllSolutions finds all integer pairs (x, y) such that A*x + B*y = C
+func findAllSolutions(A, B, C int) [][2]int {
+	var solutions [][2]int
+
+	// Define a reasonable range for x
+	// This range can be adjusted based on the problem constraints
+	for x := -1000; x <= 1000; x++ {
+		if (C-A*x)%B == 0 {
+			y := (C - A*x) / B
+			solutions = append(solutions, [2]int{x, y})
 		}
 	}
 
-	// Part 1
-	price := 0
-	for _, reg := range regions {
-		area := getArea(reg.region)
-		perimeter := getPerimeter(reg.region)
-		price += area * perimeter
-	}
-	fmt.Println("Part 1:", price)
+	return solutions
+}
 
-	// Part 2
-	price = 0
-	for _, reg := range regions {
-		area := getArea(reg.region)
-		sides := getSidesCount(reg.region)
-		price += area * sides
+// intersectionPairs returns the intersection of two slices of pairs (x, y)
+func intersectionPairs(pairs1, pairs2 [][2]int) [][2]int {
+	pairMap := make(map[[2]int]bool)
+	var intersection [][2]int
+
+	// Add pairs from the first slice to the map
+	for _, pair := range pairs1 {
+		pairMap[pair] = true
 	}
-	fmt.Println("Part 2:", price)
+
+	// Check pairs from the second slice for presence in the map
+	for _, pair := range pairs2 {
+		if pairMap[pair] {
+			intersection = append(intersection, pair)
+		}
+	}
+
+	return intersection
+}
+
+// findMinXPair finds the pair (x, y) with the minimum x value from a list of pairs
+func findMinXPair(pairs [][2]int) (int, int) {
+	minPair := pairs[0]
+	minX := pairs[0][0]
+
+	for _, pair := range pairs {
+		if pair[0] < minX {
+			minX = pair[0]
+			minPair = pair
+		}
+	}
+
+	return minPair[0], minPair[1]
+}
+
+func extendedGCD(a, b int) (int, int, int) {
+	x0, x1, y0, y1 := 1, 0, 0, 1
+	for b != 0 {
+		q := a / b
+		a, b = b, a%b
+		x0, x1 = x1, x0-q*x1
+		y0, y1 = y1, y0-q*y1
+	}
+	return a, x0, y0
+}
+
+func calculateTokens(machine Game) int {
+	// use Cramer's rule to solve the system of equations
+	a, b := solveEquation(machine)
+
+	// if no valid solution, return 0
+	if a <= 0 || b <= 0 {
+		return 0
+	}
+
+	// calculate the total tokens (3 per A press, 1 per B press)
+	return (3 * a) + b
+}
+
+func solveEquation(m Game) (int, int) {
+	// using cramer's rule:
+	// for system of eqs:
+	// ax*A + bx*B = px (x eq)
+	// ay*A + by*B = py (y eq)
+
+	// determinant of coefficients matrix
+	d := m.xA*m.yB - m.yA*m.xB
+
+	// determinants for A and B
+	d1 := m.prizeX*m.yB - m.prizeY*m.xB
+	d2 := m.prizeY*m.xA - m.prizeX*m.yA
+
+	// check if we have whole number sols
+	if d1%d != 0 || d2%d != 0 {
+		return 0, 0
+	}
+
+	return d1 / d, d2 / d
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
